@@ -16,25 +16,25 @@
             <i class="uil uil-times"></i>
           </header>
           <form action="#">
-            <div class="row_tittle">
+            <div class="row tittle">
               <label>Title</label>
-              <textarea></textarea>
+              <input id="title" type="text" placeholder="Enter title">
             </div>
-            <div class="row_from">
+            <div class="row from">
               <label>From</label>
-              <input type="text">
+              <input id="from" type="text">
             </div>
-            <div class="row_to">
+            <div class="row to">
               <label>To</label>
-              <input type="text">
+              <input id="to" type="text">
             </div>
-            <div class="row_ways">
+            <div class="row ways", class="ways">
               <label>Ways</label>
-              <input type="number">
+              <input id="ways" type="number" min="1" value="1">
             </div>
-            <div class="row_people">
+            <div class="row people", class="people">
               <label>People</label>
-              <input type="number">
+              <input id="people" type="number" min="1" value="1">
             </div>
             <button>Add New Entry</button>
           </form>
@@ -64,5 +64,8 @@
         </div>
       </li>
     </div>
+
+<script src="script.js"></script>
+
   </body>
 </html>
