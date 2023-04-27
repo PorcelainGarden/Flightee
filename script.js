@@ -8,13 +8,50 @@ waysTag = document.getElementById("ways"),
 peopleTag = document.getElementById("people"),
 addBttn = popupBox.querySelector("button");
 
+const pusher = JSON.parse(localStorage.getItem("card") || "[]");
+const months = ["January", "February", "March", "April", "May", "June",
+"July", "August", "September", "October", "November", "December"];
+
 addBox.addEventListener("click", () => {
   popupBox.classList.add("show");
 });
 
 closeIcon.addEventListener("click", () => {
   popupBox.classList.remove("show");
+
+  titleTag.value = "";
+  fromTag.value = "";
+  toTag.value = "";
+  waysTag.value = 1;
+  peopleTag.value = 1;
 });
+
+function showCards(){
+  pusher.forEach((pusher) => {
+    let liTag = `<li class="note">
+                  <div class="details">
+                    <p>${pusher.title}</p>
+                    <i class="uil uil-plane-departure"> </i>${pusher.from}<p></p>
+                    <i class="uil uil-plane-arrival"> </i>${pusher.to}<p></p>
+                    <i class="uil uil-repeat"></i>  ${pusher.ways}
+                    <i class="uil uil-user"></i>  ${pusher.people} <p></p>
+                    <i class="uil uil-clouds"></i> Co2 Emissions
+                  </div>
+                  <div class="bottom-content">
+                    <span>${pusher.date}</span>
+                    <div class="settings">
+                        <i class="uil uil-ellipsis-h"></i>
+                        <ul class="menu">
+                        <li><i class="uil uil-pen"></i>Edit</li>
+                        <li><i class="uil uil-trash"></i>Delete</li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>`;
+      addBox.insertAdjacentHTML("afterend", liTag);
+  });
+}
+showCards();
 
 addBttn.addEventListener("click", e => {
   e.preventDefault();
@@ -24,10 +61,64 @@ addBttn.addEventListener("click", e => {
   to = toTag.value,
   ways = waysTag.value,
   people = peopleTag.value,
-  dateVal = new Date();
+  emission = sendAPI(titleTag.value, toTag.value, fromTag.value, waysTag.value, peopleTag.value);
+
+  date = new Date();
   
   if(title || from || to || ways || people ){
-    console.log(title, from, to, ways, people, dateVal)
+    month = months[date.getMonth()],
+    day = date.getDate(),
+    year = date.getFullYear();
+
+    let cardInfo = {
+      title: titleTag.value, to: toTag.value, from: fromTag.value, 
+      ways: waysTag.value, people: peopleTag.value, emissions: emission.value,
+      date: `${month} ${day}, ${year}`
+    }
+
+
+
+    pusher.push(cardInfo);
+    localStorage.setItem("card", JSON.stringify(pusher));
+    
+    closeIcon.click();
+    showCards();
+  }
+
+  async function sendAPI(element1, element2, element3, element4, element5){
+  
+    const url = 'https://travel-co2-climate-carbon-emissions.p.rapidapi.com/api/v1/simpletrips';
+    const options = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'X-RapidAPI-Key': 'f310377281mshb7fcdd0bd5804b1p1572d1jsnaf1143a507f5',
+        'X-RapidAPI-Host': 'travel-co2-climate-carbon-emissions.p.rapidapi.com'
+      },
+      body: {
+        from: element2,
+        to: element3,
+        ways: element4,
+        people: element5,
+        language: 'en',
+        title: element1,
+        transport_types: [
+          'flying',
+        ]
+      }
+    };
+    
+    try {
+      const response = await fetch(url, options);
+      const result = await response.text();
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+    const jsonString = result;
+    const jsonObject = JSON.parse(jsonString);
+    const co2eValue = jsonObject.trips[0].co2e;
+    return co2eValue
   }
 
 })
