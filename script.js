@@ -36,7 +36,7 @@ function showCards(){
                     <i class="uil uil-plane-arrival"> </i>${pusher.to}<p></p>
                     <i class="uil uil-repeat"></i>  ${pusher.ways}
                     <i class="uil uil-user"></i>  ${pusher.people} <p></p>
-                    <i class="uil uil-clouds"></i> Co2 Emissions
+                    <i class="uil uil-clouds"></i> ${pusher.emissions} CO2/kg
                   </div>
                   <div class="bottom-content">
                     <span>${pusher.date}</span>
@@ -54,7 +54,44 @@ function showCards(){
 }
 showCards();
 
-addBttn.addEventListener("click", e => {
+async function sendAPI(element1, element2, element3, element4, element5){
+  
+  const url = 'https://travel-co2-climate-carbon-emissions.p.rapidapi.com/api/v1/simpletrips';
+   
+  const data = {
+      from: element2,
+      to: element3,
+      ways: element4,
+      people: element5,
+      language: 'en',
+      title: element1,
+      transport_types: [
+        'flying',
+      ]
+    }
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'X-RapidAPI-Key': 'f2348189a1msh0ce3501ebcb3e58p1add59jsnd211a5787994',
+      'X-RapidAPI-Host': 'travel-co2-climate-carbon-emissions.p.rapidapi.com'
+    },
+    body: JSON.stringify(data)
+  };
+  
+  try {
+    const response = await fetch(url, options);
+    const jsonObject = await response.json();
+    const co2eValue = jsonObject.trips[0].co2e;
+    console.log('Carbon Emissions (in kg CO2e): ', co2eValue);
+    return co2eValue;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+addBttn.addEventListener("click", async e => {
   e.preventDefault();
   
   let title = titleTag.value,
@@ -62,7 +99,8 @@ addBttn.addEventListener("click", e => {
   to = toTag.value,
   ways = waysTag.value,
   people = peopleTag.value;
-  const carbonEmissions = sendAPI(titleTag.value, toTag.value, fromTag.value, waysTag.value, peopleTag.value);
+  carbonEmissions = await sendAPI(titleTag.value, toTag.value, fromTag.value, waysTag.value, peopleTag.value);
+  
 
   date = new Date();
   
@@ -76,64 +114,16 @@ addBttn.addEventListener("click", e => {
     let cardInfo = {
       title: titleTag.value, to: toTag.value, from: fromTag.value, 
       ways: waysTag.value, people: peopleTag.value, 
-      emissions: carbonEmissions.value,
+      emissions: carbonEmissions,
       date: `${month} ${day}, ${year}`
     }
-
-
-    bool = true;
-    while (bool == true) {
-      if (carbonEmissions != null) {
-        bool = true;
-      } else {
-        bool = false;
-        pusher.push(cardInfo);
-        localStorage.setItem("card", JSON.stringify(pusher));
-        closeIcon.click();
-        showCards();
-      }
-    }
+    pusher.push(cardInfo);
+    localStorage.setItem("card", JSON.stringify(pusher));
+    closeIcon.click();
+    showCards();
+    
     console.log("Pushed!")
 
-  }
-
-
-  
-  async function sendAPI(element1, element2, element3, element4, element5){
-  
-    const url = 'https://travel-co2-climate-carbon-emissions.p.rapidapi.com/api/v1/simpletrips';
-     
-    const data = {
-        from: element2,
-        to: element3,
-        ways: element4,
-        people: element5,
-        language: 'en',
-        title: element1,
-        transport_types: [
-          'flying',
-        ]
-      }
-
-    const options = {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'X-RapidAPI-Key': 'f310377281mshb7fcdd0bd5804b1p1572d1jsnaf1143a507f5',
-        'X-RapidAPI-Host': 'travel-co2-climate-carbon-emissions.p.rapidapi.com'
-      },
-      body: JSON.stringify(data)
-    };
-    
-    try {
-      const response = await fetch(url, options);
-      const jsonObject = await response.json();
-      const co2eValue = jsonObject.trips[0].co2e;
-      console.log('Carbon Emissions (in kg CO2e): ', co2eValue);
-      return co2eValue;
-    } catch (error) {
-      console.error(error);
-    }
   }
 
 })
