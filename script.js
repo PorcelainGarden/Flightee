@@ -1,25 +1,30 @@
 const addBox = document.querySelector(".add-box"),
 popupBox = document.querySelector(".popup-box"),
+popupTitle = document.querySelector("header p"),
 closeIcon = document.querySelector("header i"),
 titleTag = document.getElementById("title"),
 fromTag = document.getElementById("from"),
 toTag = document.getElementById("to"),
 waysTag = document.getElementById("ways"),
 peopleTag = document.getElementById("people"),
-addBttn = popupBox.querySelector("button");
+addBttn = document.querySelector("button");
 
 
 const pusher = JSON.parse(localStorage.getItem("card") || "[]");
 const months = ["January", "February", "March", "April", "May", "June",
 "July", "August", "September", "October", "November", "December"];
+let updateMode = false, updateIndex;
 
 addBox.addEventListener("click", () => {
+  titleTag.focus();
   popupBox.classList.add("show");
 });
 
 closeIcon.addEventListener("click", () => {
   popupBox.classList.remove("show");
-
+  updateMode = false;
+  addBttn.innerText = "Add New Entry";
+  popupTitle.innerText = "Add a New Flight";
   titleTag.value = "";
   fromTag.value = "";
   toTag.value = "";
@@ -28,23 +33,24 @@ closeIcon.addEventListener("click", () => {
 });
 
 function showCards(){
-  pusher.forEach((pusher) => {
-    let liTag = `<li class="note">
+  document.querySelectorAll(".card").forEach(card => card.remove());
+  pusher.forEach((pusher, index) => {
+    let liTag = `<li class="card">
                   <div class="details">
                     <p>${pusher.title}</p>
                     <i class="uil uil-plane-departure"> </i>${pusher.from}<p></p>
                     <i class="uil uil-plane-arrival"> </i>${pusher.to}<p></p>
                     <i class="uil uil-repeat"></i>  ${pusher.ways}
                     <i class="uil uil-user"></i>  ${pusher.people} <p></p>
-                    <i class="uil uil-clouds"></i> ${pusher.emissions} CO2/kg
+                    <i class="uil uil-clouds"></i> ${pusher.emissions} kgCO₂
                   </div>
                   <div class="bottom-content">
                     <span>${pusher.date}</span>
                     <div class="settings">
-                        <i class="uil uil-ellipsis-h"></i>
+                        <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
                         <ul class="menu">
-                        <li><i class="uil uil-pen"></i>Edit</li>
-                        <li><i class="uil uil-trash"></i>Delete</li>
+                        <li onclick="updateCard(${index}, '${pusher.title}', '${pusher.from}', '${pusher.to}', '${pusher.ways}', '${pusher.people}')"><i class="uil uil-pen"></i>Edit</li>
+                        <li onclick="deleteCard(${index})"><i class="uil uil-trash"></i>Delete</li>
                       </ul>
                     </div>
                   </div>
@@ -53,6 +59,36 @@ function showCards(){
   });
 }
 showCards();
+
+function showMenu(elem){
+  elem.parentElement.classList.add("show");
+  document.addEventListener("click", e =>{
+    if(e.target.tagName != "I" || e.target != elem){
+      elem.parentElement.classList.remove("show");
+    }
+  })
+}
+
+function deleteCard(cardIndex){
+  pusher.splice(cardIndex, 1);
+  localStorage.setItem("card", JSON.stringify(pusher));
+  showCards();
+}
+
+function updateCard(cardIndex, title, from, to, ways, people){
+  updateMode = true;
+  updateIndex = cardIndex;
+  addBox.click();
+  titleTag.value = title;
+  fromTag.value = from;
+  toTag.value = to;
+  waysTag.value = ways;
+  peopleTag.value = people;
+
+  addBttn.innerText = "Update Entry";
+  popupTitle.innerText = "Update a Flight";
+  console.log(cardIndex, title, from, to, ways, people)
+}
 
 async function sendAPI(element1, element2, element3, element4, element5){
   
@@ -117,12 +153,16 @@ addBttn.addEventListener("click", async e => {
       emissions: carbonEmissions,
       date: `${month} ${day}, ${year}`
     }
-    pusher.push(cardInfo);
+    if(!updateMode){
+      notes.push(cardInfo);
+    } else {
+      updateMode = false;
+      pusher[updateIndex] = cardInfo;
+    }
+
     localStorage.setItem("card", JSON.stringify(pusher));
     closeIcon.click();
     showCards();
-    
-    console.log("Pushed!")
 
   }
 

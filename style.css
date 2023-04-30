@@ -41,41 +41,44 @@ body{
 .add-box .icon{
   height: 78px;
   width: 78px;
-  color: gray;
+  color: black;
   font-size: 40px;
   justify-content: center;
   border-radius: 50%;
-  border: 2px dashed grey;
+  border: 2px dashed black;
 }
 
 .add-box p{
-  color: gray;
+  color: black;
   font-weight: 500;
   margin-top: 20px;
 
 }
 
-.wrapper .note{
+.wrapper .card{
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-
-.note p{
+.note .details{
+  max-height: 165px;
+  overflow-y: auto;
+}
+.card p{
   font-size: 22px;
   font-weight: 500;
 }
 
-.note span{
+.card span{
   display: block;
   margin-top: 5px;
-  color:brown;
+  color:black;
   font-size: 16px
 }
 
-.note .bottom-content{
+.card .bottom-content{
   padding-top: 10px;
-  border-top: 1px solid brown;
+  border-top: 1px solid black;
 }
 
 .bottom-content .span{
@@ -106,7 +109,7 @@ body{
   transition: transform 0.2s ease;
 }
 
-.settings:hover .menu{
+.settings.show .menu{
   transform: scale(1);
 }
 
