@@ -110,7 +110,7 @@ async function sendAPI(element1, element2, element3, element4, element5){
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'X-RapidAPI-Key': 'REDACTED',
+      'X-RapidAPI-Key': '',
       'X-RapidAPI-Host': 'travel-co2-climate-carbon-emissions.p.rapidapi.com'
     },
     body: JSON.stringify(data)
